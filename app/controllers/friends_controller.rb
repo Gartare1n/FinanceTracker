@@ -6,8 +6,9 @@ class FriendsController < ApplicationController
 
   def search
     if params[:friend].present?
-      @friend = params[:friend]
-      if @friend
+      @friends = User.search(params[:friend])
+      @friends = current_user.except_current_user(@friends)
+      if @friends
         respond_to do |format|
           format.js { render partial: 'friends/friend_result' }
         end
@@ -24,14 +25,5 @@ class FriendsController < ApplicationController
       end
     end
   end
-
-  def destroy
-    friend = Friendship.find(params[:id])
-    user_friend = Friendship.where(user_id: current_user.id, friend_id: friend.id).first
-    user_friend.destroy
-    flash[:notice] = "#{friend.name} was successfully removed from portfolio"
-    redirect_to friends_list_path
-  end
-
 
 end
